@@ -1,0 +1,36 @@
+{
+  "name": "musicmonke",
+  "version": "1.0.0",
+  "description": "Discord Music Bot by treetreet0rrm0uth#5165",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/treetreet0rrm0uth/MusicMonke.git"
+  },
+  "author": "tree tree t0rr m0uth",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/treetreet0rrm0uth/MusicMonke/issues"
+  },
+  "homepage": "https://github.com/treetreet0rrm0uth/MusicMonke#readme",
+  "dependencies": {
+    "@discordjs/opus": "github:discordjs/opus",
+    "@discordjs/voice": "^0.8.0",
+    "discord.js": "^12.5.3",
+    "dotenv": "^16.0.0",
+    "ffmpeg": "^0.0.4",
+    "ffmpeg-static": "^4.4.1",
+    "fluent-ffmpeg": "^2.1.2",
+    "node": "^14.19.1",
+    "node-opus": "^0.3.3",
+    "opusscript": "^0.0.8",
+    "yt-search": "^2.10.3",
+    "ytdl-core": "^4.11.0"
+  },
+  "engines": {
+    "node": "14.19.1"
+  }
+}
