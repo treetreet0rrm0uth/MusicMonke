@@ -68,7 +68,7 @@ client.on("message", async message => {
     skip(message, serverQueue)
     return
   }
-  if (message.content.startsWith(`${prefix}stop`)) {
+  if (message.content.startsWith(`${prefix}stop`) || message.content.startsWith(`${prefix}s`)) {
     stop(message, serverQueue)
     return
   }
@@ -158,18 +158,26 @@ function play(guild, song, message) {
 }
 
 function skip(message, serverQueue) {
-  if (!message.member.voice.channel)
+  if (!message.member.voice.channel) {
+    message.react("❌")
     return message.channel.send("Join a voice channel to run this command!")
-  if (!serverQueue)
+  }
+  if (!serverQueue) {
+    message.react("❌")
     return message.channel.send("No song available to skip!")
+  }
   serverQueue.connection.dispatcher.end()
 }
 
 function stop(message, serverQueue) {
-  if (!message.member.voice.channel)
+  if (!message.member.voice.channel) {
+    message.react("❌")
     return message.channel.send("Join a voice channel to run this command!")
-  if (!serverQueue)
+  }
+  if (!serverQueue) {
+    message.react("❌")
     return message.channel.send("No song available to stop!")
+  }
   serverQueue.songs = []
   serverQueue.connection.dispatcher.end()
 }
