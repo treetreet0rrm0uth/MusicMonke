@@ -27,32 +27,37 @@ client.on("message", async message => {
     return
   }
   if (message.author.id == 694669671466663957 && message.content.startsWith(`${prefix}kill`)) {
+    message.react("✅")
     message.channel.send("Shutting down...").then(() => { client.destroy() })
   }
   if (message.content.startsWith(`${prefix}github`)) {
+    message.react("✅")
     message.channel.send("https://github.com/treetreet0rrm0uth/MusicMonke")
   }
   if (message.content.startsWith(`${prefix}invite`)) {
+    message.react("✅")
     message.channel.send("https://discord.com/api/oauth2/authorize?client_id=827602845984751647&permissions=36703232&scope=bot")
   }
   if (message.content.startsWith(`${prefix}ping`)) {
-    message.channel.send(`Latency: ${message.createdTimestamp - Date.now()}ms\nAPI Latency: ${Math.round(client.ws.ping)}ms`)
+    message.react("✅")
+    message.channel.send(`Latency: ${Math.abs(Date.now() - message.createdTimestamp)}ms\nAPI Latency: ${Math.round(client.ws.ping)}ms`)
   }
   if (message.content.startsWith(`${prefix}help`)) {
     const helpEmbed = new MessageEmbed()
       .setColor("#FFFFFF")
       .setTitle("Help")
       .addFields(
-        {name: ".play {Song Name/URL}", value: "Play a song from the song title or YouTube URL", inline: false},
-        {name: ".skip", value: "Skips the current song for the next song in queue", inline: false},
-        {name: ".stop", value: "Stops the current song/queue from playing", inline: false},
-        {name: ".queue", value: "View the current queue", inline: false},
-        {name: ".ping", value: "View bot and Discord API ping", inline: false},
-        {name: ".github", value: "View this bot's GitHub repository", inline: false},
-        {name: ".invite", value: "Create an invite for this bot", inline: false}
+        { name: ".play {Song Name/URL}", value: "Play a song from the song title or YouTube URL", inline: false },
+        { name: ".skip", value: "Skips the current song for the next song in queue", inline: false },
+        { name: ".stop", value: "Stops the current song/queue from playing", inline: false },
+        { name: ".queue", value: "View the current queue", inline: false },
+        { name: ".ping", value: "View bot and Discord API ping", inline: false },
+        { name: ".github", value: "View this bot's GitHub repository", inline: false },
+        { name: ".invite", value: "Create an invite for this bot", inline: false }
       )
       .setFooter("tree tree t0rr m0uth", "https://i.imgur.com/1iV8FlJ.png")
       .setTimestamp()
+    message.react("✅")
     message.channel.send(helpEmbed)
   }
   if (message.content.startsWith(`${prefix}play `) || message.content.startsWith(`${prefix}p `)) {
