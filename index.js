@@ -180,6 +180,7 @@ function stop(message, serverQueue) {
   }
   serverQueue.songs = []
   serverQueue.connection.dispatcher.end()
+  message.react("✅")
 }
 
 function songQueue(message, serverQueue) {
