@@ -1,5 +1,6 @@
 require("dotenv").config()
 const Discord = require("discord.js")
+const { MessageEmbed } = require("discord.js")
 const prefix = process.env.prefix
 const ytdl = require("ytdl-core")
 const yts = require("yt-search")
@@ -34,7 +35,27 @@ client.on("message", async message => {
   if (message.content.startsWith(`${prefix}invite`)) {
     message.channel.send("https://discord.com/api/oauth2/authorize?client_id=827602845984751647&permissions=36703232&scope=bot")
   }
-  if (message.content.startsWith(`${prefix}play`)) {
+  if (message.content.startsWith(`${prefix}ping`)) {
+    message.channel.send(`Latency: ${message.createdTimestamp - Date.now()}ms\nAPI Latency: ${Math.round(client.ws.ping)}ms`)
+  }
+  if (message.content.startsWith(`${prefix}help`)) {
+    const helpEmbed = new MessageEmbed()
+      .setColor("#FFFFFF")
+      .setTitle("Help")
+      .addFields(
+        {name: ".play {Song Name/URL}", value: "Play a song from the song title or YouTube URL", inline: false},
+        {name: ".skip", value: "Skips the current song for the next song in queue", inline: false},
+        {name: ".stop", value: "Stops the current song/queue from playing", inline: false},
+        {name: ".queue", value: "View the current queue", inline: false},
+        {name: ".ping", value: "View bot and Discord API ping", inline: false},
+        {name: ".github", value: "View this bot's GitHub repository", inline: false},
+        {name: ".invite", value: "Create an invite for this bot", inline: false}
+      )
+      .setFooter("tree tree t0rr m0uth", "https://i.imgur.com/1iV8FlJ.png")
+      .setTimestamp()
+    message.channel.send(helpEmbed)
+  }
+  if (message.content.startsWith(`${prefix}play `) || message.content.startsWith(`${prefix}p `)) {
     execute(message, serverQueue)
     return
   }
@@ -46,18 +67,28 @@ client.on("message", async message => {
     stop(message, serverQueue)
     return
   }
-  if (message.content.startsWith(`${prefix}ping`)) {
-    message.channel.send(`Latency: ${message.createdTimestamp - Date.now()}ms\nAPI Latency: ${Math.round(client.ws.ping)}ms`)
+  if (message.content.startsWith(`${prefix}queue`) || message.content.startsWith(`${prefix}q`)) {
+    songQueue(message, serverQueue)
+    return
   }
 })
 
 async function execute(message, serverQueue) {
   const args = message.content.split(" ")
   const voiceChannel = message.member.voice.channel
+  if (!voiceChannel) {
+    message.react("❌")
+    return message.channel.send("Join a voice channel to run this command!")
+  }
   const permissions = voiceChannel.permissionsFor(message.client.user)
+  if (!permissions.has("CONNECT") || !permissions.has("SPEAK")) {
+    message.react("❌")
+    return message.channel.send("Insufficient permissions!")
+  }
   let song
   if (args[1] === undefined || args[1] == null || args[1] <= 0) {
-    return message.channel.send("Invalid song title")
+    message.react("❌")
+    return message.channel.send("Invalid song title!")
   } else if (ytdl.validateURL(args[1])) {
     const songInfo = await ytdl.getInfo(args[1])
     song = {
@@ -66,16 +97,14 @@ async function execute(message, serverQueue) {
     }
   } else {
     const { videos } = await yts(args.slice(1).join(" "))
-    if (!videos.length) return message.channel.send("No songs were found")
+    if (!videos.length) {
+      message.react("❌")
+      return message.channel.send("No songs were found.")
+    }
     song = {
       title: videos[0].title,
       url: videos[0].url
     }
-  }
-  if (!voiceChannel)
-    return message.channel.send("Join a voice channel to run this command")
-  if (!permissions.has("CONNECT") || !permissions.has("SPEAK")) {
-    return message.channel.send("Insufficient permissions")
   }
   if (!serverQueue) {
     const queueContruct = {
@@ -93,6 +122,7 @@ async function execute(message, serverQueue) {
       connection.voice.setSelfDeaf(true)
       queueContruct.connection = connection
       play(message.guild, queueContruct.songs[0])
+      message.react("✅")
     } catch (err) {
       console.log(err)
       queue.delete(message.guild.id)
@@ -100,40 +130,62 @@ async function execute(message, serverQueue) {
     }
   } else {
     serverQueue.songs.push(song)
+    message.react("✅")
     return message.channel.send(`**${song.title}** has been added to the queue!`)
   }
 }
 
-function play(guild, song, serverQueue) {
-  let dispatcher = queue.get(guild.id).connection
+function play(guild, song, message) {
+  const serverQueue = queue.get(guild.id)
+  if (!song) {
+    serverQueue.voiceChannel.leave()
+    queue.delete(guild.id)
+    return
+  }
+  const dispatcher = serverQueue.connection
     .play(ytdl(song.url))
     .on("finish", () => {
-      serverQueue.songs.shift()
-      play(guild, queue.get(guild.id).songs[0])
+      serverQueue.songs.shift();
+      play(guild, serverQueue.songs[0]);
     }).on("error", error => console.error(error))
   dispatcher.setVolumeLogarithmic(queue.get(guild.id).volume / 5)
-  queue.get(guild.id).textChannel.send(`Started playing: **${song.title}**`)
+  serverQueue.textChannel.send(`Started playing: **${song.title}**`)
 }
 
 function skip(message, serverQueue) {
-  const guild = message.guild.id
   if (!message.member.voice.channel)
-    return message.channel.send("Join a voice channel to run this command")
+    return message.channel.send("Join a voice channel to run this command!")
   if (!serverQueue)
-    return message.channel.send("No song available to skip")
-  else {
-    play(guild, serverQueue.songs[1])
-    serverQueue.songs.shift()
-  }
+    return message.channel.send("No song available to skip!")
+  serverQueue.connection.dispatcher.end()
 }
 
 function stop(message, serverQueue) {
   if (!message.member.voice.channel)
-    return message.channel.send("Join a voice channel to run this command")
+    return message.channel.send("Join a voice channel to run this command!")
   if (!serverQueue)
-    return message.channel.send("No song available to stop")
+    return message.channel.send("No song available to stop!")
   serverQueue.songs = []
-  serverQueue.voiceChannel.leave()
+  serverQueue.connection.dispatcher.end()
+}
+
+function songQueue(message, serverQueue) {
+  if (!serverQueue) {
+    message.react("❌")
+    return message.channel.send("Queue is empty!")
+  }
+  const queueEmbed = new MessageEmbed()
+    .setColor("#FFFFFF")
+    .setTitle("Song Queue")
+    .setFooter("tree tree t0rr m0uth", "https://i.imgur.com/1iV8FlJ.png")
+    .setTimestamp()
+  for (let i = 0; i < serverQueue.songs.length; i++) {
+    queueEmbed.addFields(
+      { name: `Song ${i + 1}`, value: serverQueue.songs[i].title, inline: false }
+    )
+  }
+  message.react("✅")
+  message.channel.send(queueEmbed)
 }
 
 client.login(process.env.token)
