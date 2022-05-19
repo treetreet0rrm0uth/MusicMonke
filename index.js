@@ -191,7 +191,7 @@ function songQueue(message, serverQueue) {
   const queueEmbed = new MessageEmbed()
     .setColor("#FFFFFF")
     .setTitle("Song Queue")
-    .setFooter("tree tree t0rr m0uth", "https://i.imgur.com/1iV8FlJ.png")
+    .setFooter("tree tree t0rr m0uth", "https://i.imgur.com/CJexKhD.gif")
     .setTimestamp()
   for (let i = 0; i < serverQueue.songs.length; i++) {
     queueEmbed.addFields(
