@@ -8,7 +8,7 @@ const client = new Discord.Client({
   presence: {
     status: "online",
     activity: {
-      name: ".play",
+      name: "~play",
       type: "PLAYING"
     }
   }
@@ -36,7 +36,7 @@ client.on("message", async message => {
   }
   if (message.content.startsWith(`${prefix}invite`)) {
     message.react("✅")
-    message.channel.send("https://discord.com/api/oauth2/authorize?client_id=827602845984751647&permissions=36703232&scope=bot")
+    message.channel.send("https://discord.com/api/oauth2/authorize?client_id=827602845984751647&permissions=36719680&scope=bot")
   }
   if (message.content.startsWith(`${prefix}ping`)) {
     message.react("✅")
@@ -47,15 +47,15 @@ client.on("message", async message => {
       .setColor("#FFFFFF")
       .setTitle("Help")
       .addFields(
-        { name: ".play {Song Name/URL}", value: "Play a song from the song title or YouTube URL", inline: false },
-        { name: ".skip", value: "Skips the current song for the next song in queue", inline: false },
-        { name: ".stop", value: "Stops the current song/queue from playing", inline: false },
-        { name: ".queue", value: "View the current queue", inline: false },
-        { name: ".ping", value: "View bot and Discord API ping", inline: false },
-        { name: ".github", value: "View this bot's GitHub repository", inline: false },
-        { name: ".invite", value: "Create an invite for this bot", inline: false }
+        { name: "~play {Song Name/URL}", value: "Play a song from the song title or YouTube URL", inline: false },
+        { name: "~skip", value: "Skips the current song for the next song in queue", inline: false },
+        { name: "~stop", value: "Stops the current song/queue from playing", inline: false },
+        { name: "~queue", value: "View the current queue", inline: false },
+        { name: "~ping", value: "View bot and Discord API ping", inline: false },
+        { name: "~github", value: "View this bot's GitHub repository", inline: false },
+        { name: "~invite", value: "Create an invite for this bot", inline: false }
       )
-      .setFooter("tree tree t0rr m0uth", "https://i.imgur.com/1iV8FlJ.png")
+      .setFooter("tree tree t0rr m0uth", "https://i.imgur.com/CJexKhD.gif")
       .setTimestamp()
     message.react("✅")
     message.channel.send(helpEmbed)
