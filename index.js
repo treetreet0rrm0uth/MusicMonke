@@ -8,12 +8,14 @@ const client = new Discord.Client({
   presence: {
     status: "online",
     activity: {
-      name: "~play",
+      name: ".play",
       type: "PLAYING"
     }
   }
 })
 const queue = new Map()
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 client.once("ready", () => {
   console.log("Started")
@@ -21,6 +23,17 @@ client.once("ready", () => {
 
 client.on("message", async message => {
   const serverQueue = queue.get(message.guild.id)
+  if (message.guild.channels.cache.some(channel => (channel.type === 'voice' && channel.members.has(client.user.id)))) {
+    const botVoiceChannel = message.guild.me.voice.channelID
+    const voiceChannel = client.guilds.cache.get(message.guild.id).channels.cache.get(botVoiceChannel);
+    if (voiceChannel.members.size <= 1) {
+      await delay(10000)
+      if (voiceChannel.members.size <= 1) {
+        message.channel.send("The bot has been disconnected from the voice channel due to inactivity.")
+        serverQueue.connection.dispatcher.end()
+      }
+    }
+  }
   if (message.author.bot) return
   if (!message.content.startsWith(prefix)) return
   if (message.author.bot || !message.content.startsWith(prefix)) {
@@ -47,13 +60,13 @@ client.on("message", async message => {
       .setColor("#FFFFFF")
       .setTitle("Help")
       .addFields(
-        { name: "~play {Song Name/URL}", value: "Play a song from the song title or YouTube URL", inline: false },
-        { name: "~skip", value: "Skips the current song for the next song in queue", inline: false },
-        { name: "~stop", value: "Stops the current song/queue from playing", inline: false },
-        { name: "~queue", value: "View the current queue", inline: false },
-        { name: "~ping", value: "View bot and Discord API ping", inline: false },
-        { name: "~github", value: "View this bot's GitHub repository", inline: false },
-        { name: "~invite", value: "Create an invite for this bot", inline: false }
+        { name: ".play {Song Name/URL}", value: "Play a song from the song title or YouTube URL", inline: false },
+        { name: ".skip", value: "Skips the current song for the next song in queue", inline: false },
+        { name: ".stop", value: "Stops the current song/queue from playing", inline: false },
+        { name: ".queue", value: "View the current queue", inline: false },
+        { name: ".ping", value: "View bot and Discord API ping", inline: false },
+        { name: ".github", value: "View this bot's GitHub repository", inline: false },
+        { name: ".invite", value: "Create an invite for this bot", inline: false }
       )
       .setFooter("tree tree t0rr m0uth", "https://i.imgur.com/CJexKhD.gif")
       .setTimestamp()
@@ -203,3 +216,5 @@ function songQueue(message, serverQueue) {
 }
 
 client.login(process.env.token)
+
+//tree tree t0rr m0uth
